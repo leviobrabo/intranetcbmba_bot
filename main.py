@@ -1,4 +1,3 @@
-import configparser
 import os
 import requests
 from bs4 import BeautifulSoup
@@ -9,28 +8,26 @@ import logging
 from typing import List, Dict
 from pymongo import MongoClient
 from datetime import datetime
+from dotenv import load_dotenv
 
+# Carregar variáveis de ambiente do arquivo .env
+load_dotenv()
 
-config = configparser.ConfigParser()
-config.read('bot.conf')
+# Carregar configurações do arquivo .env
+LOGIN_URL = os.getenv('LOGIN_URL')
+AVISOS_URL = os.getenv('AVISOS_URL')
+BASE_URL = os.getenv('BASE_URL')
+CHECK_INTERVAL = int(os.getenv('CHECK_INTERVAL', 60))
 
+USERNAME = os.getenv('USERNAME')
+PASSWORD = os.getenv('PASSWORD')
 
-# Carregar configurações do arquivo config.ini
-LOGIN_URL = config['DEFAULT']['LOGIN_URL']
-AVISOS_URL = config['DEFAULT']['AVISOS_URL']
-BASE_URL = config['DEFAULT']['BASE_URL']
-CHECK_INTERVAL = int(config['DEFAULT']['CHECK_INTERVAL'])
+TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
+CHAT_ID = os.getenv('CHAT_ID')
 
-USERNAME = config['USER']['USERNAME']
-PASSWORD = config['USER']['PASSWORD']
-
-TELEGRAM_TOKEN = config['TELEGRAM']['TELEGRAM_TOKEN']
-CHAT_ID = config['TELEGRAM']['CHAT_ID']
-
-MONGO_URI = config['MONGODB']['MONGO_URI']
-MONGO_DB = config['MONGODB']['MONGO_DB']
-MONGO_COLLECTION = config['MONGODB']['MONGO_COLLECTION']
-
+MONGO_URI = os.getenv('MONGO_URI')
+MONGO_DB = os.getenv('MONGO_DB')
+MONGO_COLLECTION = os.getenv('MONGO_COLLECTION')
 
 DOCUMENTS_DIR = "documentos"
 if not os.path.exists(DOCUMENTS_DIR):
