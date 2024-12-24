@@ -51,6 +51,11 @@ bot = telebot.TeleBot(TELEGRAM_TOKEN)
 # Inicia uma sessão
 session = requests.Session()
 
+# Define um User-Agent para evitar bloqueios de requisições automatizadas
+session.headers.update({
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+})
+
 # Configura o MongoDB
 client = MongoClient(MONGO_URI)
 db = client[MONGO_DB]
