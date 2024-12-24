@@ -3,4 +3,4 @@ beautifulsoup4
 pytelegrambotapi
 schedule
 pymongo
-dotenv
+python-dotenv
