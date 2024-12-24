@@ -41,10 +41,10 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler("bot_cbm.log"),
-        logging.StreamHandler()
+        logging.StreamHandler() 
     ]
 )
+
 
 # Inicializa o bot do Telegram usando pytelegrambotapi
 bot = telebot.TeleBot(TELEGRAM_TOKEN)
