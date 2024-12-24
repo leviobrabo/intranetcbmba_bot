@@ -44,7 +44,7 @@ logging.basicConfig(
         logging.StreamHandler() 
     ]
 )
-
+print("teste...")
 
 # Inicializa o bot do Telegram usando pytelegrambotapi
 bot = telebot.TeleBot(TELEGRAM_TOKEN)
@@ -67,6 +67,7 @@ def login() -> bool:
     Retorna True se o login for bem-sucedido, False caso contrário.
     """
     try:
+        print("tentando o logar...")
         response = session.get(LOGIN_URL)
         soup = BeautifulSoup(response.text, 'html.parser')
 
