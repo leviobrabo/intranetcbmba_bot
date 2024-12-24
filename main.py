@@ -44,7 +44,6 @@ logging.basicConfig(
         logging.StreamHandler() 
     ]
 )
-print("teste...")
 
 # Inicializa o bot do Telegram usando pytelegrambotapi
 bot = telebot.TeleBot(TELEGRAM_TOKEN)
