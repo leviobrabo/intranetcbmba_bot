@@ -63,26 +63,31 @@ if not os.path.exists(DOCUMENTS_DIR):
 def login() -> bool:
     """
     Realiza login no site e mantém a sessão autenticada.
-    Retorna True se o login for bem-sucedido, False caso contrário.
     """
+    logging.info("Tentando realizar login...")
     try:
-        print("tentando o logar...")
         response = session.get(LOGIN_URL)
+        logging.debug(f"Resposta GET LOGIN_URL: {response.status_code}")
         soup = BeautifulSoup(response.text, 'html.parser')
 
-        form_build_id = soup.find('input', {'name': 'form_build_id'})['value']
-        form_id = soup.find('input', {'name': 'form_id'})['value']
+        form_build_id = soup.find('input', {'name': 'form_build_id'})
+        form_id = soup.find('input', {'name': 'form_id'})
+
+        if not form_build_id or not form_id:
+            logging.error("Campos do formulário de login não encontrados. Verifique a página de login.")
+            return False
 
         payload = {
             'name': USERNAME,
             'pass': PASSWORD,
-            'form_build_id': form_build_id,
-            'form_id': form_id,
+            'form_build_id': form_build_id['value'],
+            'form_id': form_id['value'],
             'op': 'Entrar'
         }
 
+        logging.debug(f"Payload de login: {payload}")
         login_response = session.post(LOGIN_URL, data=payload)
-        login_response.raise_for_status()
+        logging.debug(f"Resposta POST LOGIN_URL: {login_response.status_code}")
 
         if "Sair" in login_response.text:
             logging.info("Login realizado com sucesso.")
@@ -93,6 +98,7 @@ def login() -> bool:
     except Exception as e:
         logging.error(f"Erro durante o login: {e}")
         return False
+
 
 def extrair_avisos() -> List[Dict]:
     """
