@@ -72,7 +72,7 @@ def login() -> bool:
     logging.info("Tentando realizar login...")
     try:
         response = session.get(LOGIN_URL)
-        logging.debug(f"Resposta GET LOGIN_URL: {response.status_code}")
+        logging.info(f"Resposta GET LOGIN_URL: {response.status_code}")
         soup = BeautifulSoup(response.text, 'html.parser')
 
         form_build_id = soup.find('input', {'name': 'form_build_id'})
@@ -90,9 +90,9 @@ def login() -> bool:
             'op': 'Entrar'
         }
 
-        logging.debug(f"Payload de login: {payload}")
+        logging.info(f"Payload de login: {payload}")
         login_response = session.post(LOGIN_URL, data=payload)
-        logging.debug(f"Resposta POST LOGIN_URL: {login_response.status_code}")
+        logging.info(f"Resposta POST LOGIN_URL: {login_response.status_code}")
 
         if "Sair" in login_response.text:
             logging.info("Login realizado com sucesso.")
