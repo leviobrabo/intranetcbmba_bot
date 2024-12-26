@@ -1,6 +1,6 @@
-requests
-beautifulsoup4
-pytelegrambotapi
-schedule
-pymongo
-python-dotenv
+requests==2.31.0
+beautifulsoup4==4.12.2
+pytelegrambotapi==4.12.0
+schedule==1.2.0
+pymongo==4.4.0
+python-dotenv==1.0.0
