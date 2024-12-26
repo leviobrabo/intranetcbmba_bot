@@ -72,7 +72,7 @@ def login() -> bool:
     """
     logging.info("Tentando realizar login...")
     try:
-        response = session.get(LOGIN_URL)
+        response = session.get(LOGIN_URL, timeout=10)
         print(f"Status Code: {response.status_code}")
         print(response.text)
         logging.info(f"Resposta GET LOGIN_URL: {response.status_code}")
