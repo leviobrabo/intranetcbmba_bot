@@ -289,6 +289,16 @@ def enviar_para_telegram(aviso: Dict):
     except Exception as e:
         logging.error(f"Erro ao enviar aviso para o Telegram: {e}")
 
+def limpar_dados():
+    """
+    Remove todos os documentos da coleção no MongoDB.
+    """
+    try:
+        result = collection.delete_many({})
+        logging.info(f"Dados do banco de dados limpos. {result.deleted_count} documento(s) removido(s).")
+    except Exception as e:
+        logging.error(f"Erro ao limpar dados do banco de dados: {e}")
+
 
 def verificar_e_enviar():
     """
@@ -318,7 +328,7 @@ def main():
 
     # Agenda a verificação a cada CHECK_INTERVAL segundos
     schedule.every(CHECK_INTERVAL).seconds.do(verificar_e_enviar)
-
+    schedule.every().day.at("00:00").do(limpar_dados)
     logging.info(f"Bot iniciado. Verificações a cada {CHECK_INTERVAL} segundos.")
 
     while True:
