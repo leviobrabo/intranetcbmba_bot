@@ -61,6 +61,8 @@ client = MongoClient(MONGO_URI)
 db = client[MONGO_DB]
 collection = db[MONGO_COLLECTION]
 
+print(LOGIN_URL, USERNAME, PASSWORD) 
+
 # Cria o diretório para documentos se não existir
 if not os.path.exists(DOCUMENTS_DIR):
     os.makedirs(DOCUMENTS_DIR)
