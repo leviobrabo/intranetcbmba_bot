@@ -33,6 +33,15 @@ DOCUMENTS_DIR = "documentos"
 if not os.path.exists(DOCUMENTS_DIR):
     os.makedirs(DOCUMENTS_DIR)
 
+proxies = {
+    "http": "http://177.36.14.137:8080",
+    "https": "http://189.89.186.178:44443"
+    "http://177.70.174.103:8080",
+    "http://45.160.179.15:80",
+    "https://189.50.45.105:1995",
+    "https://189.89.186.178:44443"
+}
+
 # Configuração de Logging
 logging.basicConfig(
     level=logging.INFO,
@@ -72,7 +81,7 @@ def login() -> bool:
     """
     logging.info("Tentando realizar login...")
     try:
-        response = session.get(LOGIN_URL, timeout=10)
+        response = session.get(LOGIN_URL, proxies=proxies, timeout=10)
         print(f"Status Code: {response.status_code}")
         print(response.text)
         logging.info(f"Resposta GET LOGIN_URL: {response.status_code}")
