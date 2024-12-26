@@ -69,6 +69,8 @@ def login() -> bool:
     logging.info("Tentando realizar login...")
     try:
         response = session.get(LOGIN_URL)
+        print(response.status_code)
+        print(response.text)
         logging.info(f"Resposta GET LOGIN_URL: {response.status_code}")
         soup = BeautifulSoup(response.text, 'html.parser')
 
