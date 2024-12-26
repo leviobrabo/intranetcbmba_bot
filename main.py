@@ -52,9 +52,8 @@ session = requests.Session()
 session.headers.update({
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36',
     'Referer': LOGIN_URL,
-    'Origin': LOGIN_URL.split('/login')[0]  # Ajuste conforme necessário
+    'Origin': 'http://www.cbm.ba.gov.br/user/login'  # Ajuste para o domínio correto
 })
-
 
 # Configura o MongoDB
 client = MongoClient(MONGO_URI)
