@@ -33,12 +33,6 @@ DOCUMENTS_DIR = "documentos"
 if not os.path.exists(DOCUMENTS_DIR):
     os.makedirs(DOCUMENTS_DIR)
 
-proxies = {
-    "http": "http://177.36.14.137:8080",
-    "https": "http://189.89.186.178:44443"
-}
-
-
 # Configuração de Logging
 logging.basicConfig(
     level=logging.INFO,
@@ -56,17 +50,13 @@ session = requests.Session()
 
 # Define um User-Agent para evitar bloqueios de requisições automatizadas
 session.headers.update({
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36',
-    'Referer': LOGIN_URL,
-    'Origin': 'http://www.cbm.ba.gov.br/user/login'  # Ajuste para o domínio correto
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
 })
 
 # Configura o MongoDB
 client = MongoClient(MONGO_URI)
 db = client[MONGO_DB]
 collection = db[MONGO_COLLECTION]
-
-print(LOGIN_URL, USERNAME, PASSWORD) 
 
 # Cria o diretório para documentos se não existir
 if not os.path.exists(DOCUMENTS_DIR):
@@ -78,8 +68,8 @@ def login() -> bool:
     """
     logging.info("Tentando realizar login...")
     try:
-        response = session.get(LOGIN_URL, proxies=proxies, timeout=10)
-        print(f"Status Code: {response.status_code}")
+        response = session.get(LOGIN_URL)
+        print(response.status_code)
         print(response.text)
         logging.info(f"Resposta GET LOGIN_URL: {response.status_code}")
         soup = BeautifulSoup(response.text, 'html.parser')
@@ -89,7 +79,6 @@ def login() -> bool:
 
         if not form_build_id or not form_id:
             logging.error("Campos do formulário de login não encontrados. Verifique a página de login.")
-            print(response.text)
             return False
 
         payload = {
@@ -99,12 +88,10 @@ def login() -> bool:
             'form_id': form_id['value'],
             'op': 'Entrar'
         }
-        print(payload)
+
         logging.info(f"Payload de login: {payload}")
         login_response = session.post(LOGIN_URL, data=payload)
         logging.info(f"Resposta POST LOGIN_URL: {login_response.status_code}")
-        print(f"Status Code POST: {login_response.status_code}")
-        print(login_response.text)
 
         if "Sair" in login_response.text:
             logging.info("Login realizado com sucesso.")
