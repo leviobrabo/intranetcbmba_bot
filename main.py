@@ -197,7 +197,26 @@ def baixar_documentos(documentos: List[Dict]) -> List[str]:
     except Exception as e:
         logging.error(f"Erro ao baixar documentos: {e}")
         return []
+        
+def enviar_documentos_por_lotes(documentos: List[Dict]):
+    """
+    Envia documentos em lotes de 10 por vez para evitar o erro do Telegram.
+    """
+    try:
+        # Dividir os documentos em lotes de 10
+        for i in range(0, len(documentos), 10):
+            lote = documentos[i:i+10]
+            arquivos = [doc['url'] for doc in lote]
 
+            # Enviar lote de documentos como um álbum
+            bot.send_media_group(
+                chat_id=CHAT_ID,
+                media=[telebot.types.InputMediaDocument(url=arquivo) for arquivo in arquivos]
+            )
+            logging.info(f"Enviado lote de {len(lote)} documentos.")
+    except Exception as e:
+        logging.error(f"Erro ao enviar documentos para o Telegram: {e}")
+        
 def extrair_conteudo_aviso(link_aviso: str) -> str:
     """
     Extrai o conteúdo completo do aviso a partir do link.
@@ -250,42 +269,46 @@ def enviar_para_telegram(aviso: Dict):
         logging.info(f"Texto enviado para o aviso: {aviso['titulo']}")
 
         # Se houver documentos, envia-os como uma mensagem agrupada
+        documentos = extrair_documentos(aviso['link'])
         if documentos:
-            media_group = []
             open_files = []  # Lista para manter os arquivos abertos
+            grupos_de_documentos = [documentos[i:i+10] for i in range(0, len(documentos), 10)]
+            for grupo in grupos_de_documentos:
+                media_group = []
+                for doc in documentos:
+                    url = doc['url']
+                    nome = doc['nome']
+                    resposta = session.get(url, stream=True)
+                    resposta.raise_for_status()
 
-            for doc in documentos:
-                url = doc['url']
-                nome = doc['nome']
-                resposta = session.get(url, stream=True)
-                resposta.raise_for_status()
+                    # Salva o documento localmente
+                    caminho_arquivo = os.path.join(DOCUMENTS_DIR, nome)
+                    with open(caminho_arquivo, 'wb') as f:
+                        for chunk in resposta.iter_content(chunk_size=8192):
+                            if chunk:
+                                f.write(chunk)
+    
+                    # Abre o arquivo para envio e adiciona ao media group
+                    f = open(caminho_arquivo, 'rb')
+                    open_files.append(f)  # Mantém o arquivo aberto
+                    media_group.append(telebot.types.InputMediaDocument(media=f))
+    
+                # Envia os documentos agrupados
+                bot.send_media_group(chat_id=CHAT_ID, media=media_group)
+                logging.info(f"Documentos enviados para o aviso: {aviso['titulo']}")
+    
+                # Fecha e remove os arquivos após o envio
+                for f in open_files:
+                    f.close()
+                    os.remove(f.name)
 
-                # Salva o documento localmente
-                caminho_arquivo = os.path.join(DOCUMENTS_DIR, nome)
-                with open(caminho_arquivo, 'wb') as f:
-                    for chunk in resposta.iter_content(chunk_size=8192):
-                        if chunk:
-                            f.write(chunk)
-
-                # Abre o arquivo para envio e adiciona ao media group
-                f = open(caminho_arquivo, 'rb')
-                open_files.append(f)  # Mantém o arquivo aberto
-                media_group.append(telebot.types.InputMediaDocument(media=f))
-
-            # Envia os documentos agrupados
-            bot.send_media_group(chat_id=CHAT_ID, media=media_group)
-            logging.info(f"Documentos enviados para o aviso: {aviso['titulo']}")
-
-            # Fecha e remove os arquivos após o envio
-            for f in open_files:
-                f.close()
-                os.remove(f.name)
-
-        # Adiciona o ID do aviso ao MongoDB para evitar reenvios
-        collection.insert_one({'id': aviso['id']})
-
-        # Aguarda para evitar exceder os limites da API do Telegram
-        time.sleep(1)
+                open_files.clear()
+                time.sleep(1)
+            # Adiciona o ID do aviso ao MongoDB para evitar reenvios
+            collection.insert_one({'id': aviso['id']})
+    
+            # Aguarda para evitar exceder os limites da API do Telegram
+            time.sleep(1)
     except Exception as e:
         logging.error(f"Erro ao enviar aviso para o Telegram: {e}")
 
