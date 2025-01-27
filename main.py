@@ -272,7 +272,7 @@ def enviar_para_telegram(aviso: Dict):
         documentos = extrair_documentos(aviso['link'])
         if documentos:
             open_files = []  # Lista para manter os arquivos abertos
-            grupos_de_documentos = [documentos[i:i+10] for i in range(0, len(documentos), 10)]
+            grupos_de_documentos = [documentos[i:i+5] for i in range(0, len(documentos), 5)]
             for grupo in grupos_de_documentos:
                 media_group = []
                 for doc in documentos:
