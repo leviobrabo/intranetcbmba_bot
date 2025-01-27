@@ -272,38 +272,32 @@ def enviar_para_telegram(aviso: Dict):
         documentos = extrair_documentos(aviso['link'])
         if documentos:
             open_files = []  # Lista para manter os arquivos abertos
-            grupos_de_documentos = [documentos[i:i+5] for i in range(0, len(documentos), 5)]
-            for grupo in grupos_de_documentos:
-                media_group = []
-                for doc in documentos:
-                    url = doc['url']
-                    nome = doc['nome']
-                    resposta = session.get(url, stream=True)
-                    resposta.raise_for_status()
-
-                    # Salva o documento localmente
-                    caminho_arquivo = os.path.join(DOCUMENTS_DIR, nome)
-                    with open(caminho_arquivo, 'wb') as f:
-                        for chunk in resposta.iter_content(chunk_size=8192):
-                            if chunk:
-                                f.write(chunk)
     
-                    # Abre o arquivo para envio e adiciona ao media group
-                    f = open(caminho_arquivo, 'rb')
-                    open_files.append(f)  # Mantém o arquivo aberto
-                    media_group.append(telebot.types.InputMediaDocument(media=f))
+            for doc in documentos:
+                url = doc['url']
+                nome = doc['nome']
+                resposta = session.get(url, stream=True)
+                resposta.raise_for_status()
     
-                # Envia os documentos agrupados
-                bot.send_media_group(chat_id=CHAT_ID, media=media_group)
-                logging.info(f"Documentos enviados para o aviso: {aviso['titulo']}")
+                # Salva o documento localmente
+                caminho_arquivo = os.path.join(DOCUMENTS_DIR, nome)
+                with open(caminho_arquivo, 'wb') as f:
+                    for chunk in resposta.iter_content(chunk_size=8192):
+                        if chunk:
+                            f.write(chunk)
     
-                # Fecha e remove os arquivos após o envio
-                for f in open_files:
-                    f.close()
-                    os.remove(f.name)
-
-                open_files.clear()
-                time.sleep(1)
+                # Abre o arquivo para envio
+                f = open(caminho_arquivo, 'rb')
+                open_files.append(f)  # Mantém o arquivo aberto
+    
+                # Envia o documento individualmente
+                bot.send_document(chat_id=CHAT_ID, document=f)
+                logging.info(f"Documento enviado para o aviso: {aviso['titulo']}")
+    
+                # Fecha e remove o arquivo após o envio
+                f.close()
+                os.remove(f.name)
+    
             # Adiciona o ID do aviso ao MongoDB para evitar reenvios
             collection.insert_one({'id': aviso['id']})
     
