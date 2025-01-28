@@ -256,7 +256,7 @@ def enviar_para_telegram(aviso: Dict):
 
         # Extrai documentos
         documentos = extrair_documentos(aviso['link'])
-
+    
         # Prepara a mensagem com o conteúdo do aviso com formatação HTML
         mensagem = (
             f"<b>{aviso['titulo']}</b>\n"
@@ -267,7 +267,10 @@ def enviar_para_telegram(aviso: Dict):
         # Envia a mensagem com o conteúdo do aviso
         bot.send_message(chat_id=CHAT_ID, text=mensagem, parse_mode='HTML')
         logging.info(f"Texto enviado para o aviso: {aviso['titulo']}")
-
+        
+        # Adiciona o ID do aviso ao MongoDB para evitar reenvios
+        collection.insert_one({'id': aviso['id']})
+        
         # Se houver documentos, envia-os como uma mensagem agrupada
         documentos = extrair_documentos(aviso['link'])
         if documentos:
@@ -298,9 +301,7 @@ def enviar_para_telegram(aviso: Dict):
                 f.close()
                 os.remove(f.name)
     
-            # Adiciona o ID do aviso ao MongoDB para evitar reenvios
-            collection.insert_one({'id': aviso['id']})
-    
+            
             # Aguarda para evitar exceder os limites da API do Telegram
             time.sleep(1)
     except Exception as e:
